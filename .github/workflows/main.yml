@@ -67,11 +67,11 @@ jobs:
 
     # build C# Samples/DecoderSample
     - name: Build C# Samples/DecoderSample
-      run: dotnet build --configuration ${{ env.buildConfiguration }} ../../Samples/DecoderSample 
+      run: dotnet build --configuration ${{ env.buildConfiguration }} Samples/DecoderSample 
 
     # build LoRa Simulator
     - name: Build LoRa Simulator
-      run: dotnet build --configuration ${{ env.buildConfiguration }} ../../LoRaEngine/modules/LoRaSimulator/LoRaSimulator.sln
+      run: dotnet build --configuration ${{ env.buildConfiguration }} LoRaEngine/modules/LoRaSimulator/LoRaSimulator.sln
 
    # Pull Redis Cache docker image
     - name: Pulling Redis Cache image
@@ -81,7 +81,7 @@ jobs:
     - name: Run unit tests
       run: |
         mkdir $(Build.SourcesDirectory)\results
-        dotnet test --logger trx ../../LoRaEngine/test/LoRaWanNetworkServer.Test/*.csproj &&  dotnet test --logger trx ../../LoRaEngine/modules/LoRaWanNetworkSrvModule/LoRaToolsTest/*.csproj && dotnet test --logger trx ../../LoRaEngine/test/LoraKeysManagerFacade.Test/*.csproj
+        dotnet test --logger trx LoRaEngine/test/LoRaWanNetworkServer.Test/*.csproj &&  dotnet test --logger trx LoRaEngine/modules/LoRaWanNetworkSrvModule/LoRaToolsTest/*.csproj && dotnet test --logger trx LoRaEngine/test/LoraKeysManagerFacade.Test/*.csproj
 
     # Find out if full ci is enabled for Pull Request validation
     - name: Check for CI label build on PR
