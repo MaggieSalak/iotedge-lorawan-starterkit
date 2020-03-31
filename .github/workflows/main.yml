@@ -58,6 +58,9 @@ jobs:
     # if: variables['RunTestsOnly'] != true # do not run if RunTestsOnly == true
     
     steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+      
     # build LoRa Engine
     - name: Build LoRa Engine
       run: dotnet build --configuration ${{ env.buildConfiguration }} LoRaEngine/LoRaEngine.sln
