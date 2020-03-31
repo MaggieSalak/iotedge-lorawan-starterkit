@@ -57,7 +57,7 @@ jobs:
   build_and_test:
     name: Build and Test Solution
     runs-on: ubuntu-16.04
-    if: ${{ env.RunTestsOnly }} != true # do not run if RunTestsOnly == true
+    if: env.RunTestsOnly != 'true' # do not run if RunTestsOnly == true
     
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
