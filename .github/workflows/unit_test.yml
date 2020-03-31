@@ -65,6 +65,7 @@ jobs:
       
     # build LoRa Engine
     - name: Build LoRa Engine
+      if: env.RunTestsOnly != 'true'
       run: dotnet build --configuration ${{ env.buildConfiguration }} LoRaEngine/LoRaEngine.sln
 
     # build C# Samples/DecoderSample
