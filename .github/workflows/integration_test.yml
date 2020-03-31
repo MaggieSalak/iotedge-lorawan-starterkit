@@ -1,0 +1,9 @@
+name: $(Build.SourceBranchName)_$(Build.Reason)_$(majorVersion).$(Build.BuildId)$(Rev:.r)
+
+# Enable CI and PR validation on branches master and dev
+on:
+  push:
+    branches: [ master, dev, pipeline-github-actions ]
+  pull_request:
+    branches: [ master, dev, pipeline-github-actions ]
+    labeled: fullci
