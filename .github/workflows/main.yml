@@ -3,7 +3,7 @@ name: $(Build.SourceBranchName)_$(Build.Reason)_$(majorVersion).$(Build.BuildId)
 # Enable CI and PR validation on branches master and dev
 on:
   push:
-    branches: [ master, dev ]
+    branches: [ master, dev, pipeline-github-actions ]
   pull_request:
     branches: [ master, dev ]
 
@@ -79,3 +79,15 @@ jobs:
       run: |
         mkdir $(Build.SourcesDirectory)\results
         dotnet test --logger trx ./LoRaEngine/test/LoRaWanNetworkServer.Test/*.csproj &&  dotnet test --logger trx ./LoRaEngine/modules/LoRaWanNetworkSrvModule/LoRaToolsTest/*.csproj && dotnet test --logger trx ./LoRaEngine/test/LoraKeysManagerFacade.Test/*.csproj
+
+    # Find out if full ci is enabled for Pull Request validation
+    - name: Check for CI label build on PR
+      run: |
+       echo "Looking for label at https://api.github.com/repos/$BUILD_REPOSITORY_ID/issues/$SYSTEM_PULLREQUEST_PULLREQUESTNUMBER/labels"
+       if curl -s "https://api.github.com/repos/$BUILD_REPOSITORY_ID/issues/$SYSTEM_PULLREQUEST_PULLREQUESTNUMBER/labels" | grep '"name": "fullci"'
+       then       
+         echo "##vso[task.setvariable variable=prWithCILabel;isOutput=true]true"
+         echo "fullci label found!"
+       fi
+      if: env.Build.Reason == 'PullRequest'
+    
