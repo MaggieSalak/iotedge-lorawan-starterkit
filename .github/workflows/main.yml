@@ -1,0 +1,81 @@
+name: $(Build.SourceBranchName)_$(Build.Reason)_$(majorVersion).$(Build.BuildId)$(Rev:.r)
+
+# Enable CI and PR validation on branches master and dev
+on:
+  push:
+    branches: [ master, dev ]
+  pull_request:
+    branches: [ master, dev ]
+
+env:
+  
+  # Major version
+  majorVersion: 1.0.0
+
+  # image tag prefix for master branch (0.2.0)
+  MASTER_IMAGE_TAG: ''
+
+  # image tag prefix for dev branch (0.3.0-dev)
+  DEV_IMAGE_TAG: dev
+
+  buildConfiguration: 'Release'
+
+  edgeAgentVersion: 1.0.7
+  edgeHubVersion: 1.0.7
+  edgeHubRoute: FROM /* INTO $upstream
+
+  # Defines the name of the VSTS agent in ARM architecture
+  vstsAgentARM: myAgent-arm32v7
+
+  # Defines the name of the VSTS agent in AMD64 architecture
+  vstsAgentAMD: myAgent-amd64
+
+  # Network Server module level: 1 in order to get decoder information
+  networkServerLogLevel: 1
+
+  # IoT Edge Runtime configuration
+  EDGE_AGENT_VERSION: $(edgeAgentVersion)
+  EDGE_HUB_VERSION: $(edgeHubVersion)
+  EDGEHUB_OPTIMIZEFORPERFORMANCE: false
+  EDGEHUB_MQTTSETTINGS_ENABLED: false
+  EDGEHUB_HTTPSETTINGS_ENABLED: false
+  EDGEHUB_ROUTE: $(edgeHubRoute)
+  # LoRaWan Modules
+  NET_SRV_LOG_LEVEL: $(networkServerLogLevel)  
+  NET_SRV_LOGTO_UDP: true
+  NET_SRV_LOGTO_HUB: false
+  NET_SRV_IOTEDGE_TIMEOUT: 0
+  NET_SRV_VERSION: "" # Network Server module version
+  NET_SRV_LOG_TO_UDP_ADDRESS: 10.164.74.151 # Hostname of test runner
+  PKT_FWD_VERSION: "" # Packet Forward module version
+
+jobs:
+
+  # [Job] Smoke test job: ensure code compiles and unit tests are working
+  build_and_test:
+    name: Build and Test Solution
+    runs-on: ubuntu-16.04
+    if: env.RunTestsOnly != true # do not run if RunTestsOnly == true
+    
+    steps:
+    # build LoRa Engine
+    - name: Build LoRa Engine
+      run: dotnet build --configuration $(buildConfiguration) ./LoRaEngine/LoRaEngine.sln
+
+    # build C# Samples/DecoderSample
+    - name: Build C# Samples/DecoderSample
+      run: dotnet build --configuration $(buildConfiguration) ./Samples/DecoderSample 
+
+    # build LoRa Simulator
+    - name: Build LoRa Simulator
+      run: dotnet build --configuration $(buildConfiguration) ./LoRaEngine/modules/LoRaSimulator/LoRaSimulator.sln
+
+   # Pull Redis Cache docker image
+    - name: Pulling Redis Cache image
+      run: docker pull redis:5.0.4-alpine
+
+    # Run unit tests
+    - name: Run unit tests
+      run: |
+        mkdir $(Build.SourcesDirectory)\results
+        dotnet test --logger trx ./LoRaEngine/test/LoRaWanNetworkServer.Test/*.csproj &&  dotnet test --logger trx ./LoRaEngine/modules/LoRaWanNetworkSrvModule/LoRaToolsTest/*.csproj && dotnet test --logger trx ./LoRaEngine/test/LoraKeysManagerFacade.Test/*.csproj
