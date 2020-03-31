@@ -1,0 +1,120 @@
+name: $(Build.SourceBranchName)_$(Build.Reason)_$(majorVersion).$(Build.BuildId)$(Rev:.r)
+
+# Enable CI and PR validation on branches master and dev
+on:
+  push:
+    branches: [ master, dev, pipeline-github-actions ]
+  pull_request:
+    branches: [ master, dev ]
+
+env:
+
+  RunTestsOnly: false
+
+  TestsToRun: 'MacTest'
+
+  # Integration test configuration
+  AdditionalIntegrationTestArguments: ''
+  IntegrationTestsToRun: ''
+
+  # Major version
+  majorVersion: 1.0.0
+
+  # image tag prefix for master branch (0.2.0)
+  MASTER_IMAGE_TAG: ''
+
+  # image tag prefix for dev branch (0.3.0-dev)
+  DEV_IMAGE_TAG: dev
+
+  buildConfiguration: 'Release'
+
+  edgeAgentVersion: 1.0.7
+  edgeHubVersion: 1.0.7
+  edgeHubRoute: FROM /* INTO $upstream
+
+  # Defines the name of the VSTS agent in ARM architecture
+  vstsAgentARM: myAgent-arm32v7
+
+  # Defines the name of the VSTS agent in AMD64 architecture
+  vstsAgentAMD: myAgent-amd64
+
+  # Network Server module level: 1 in order to get decoder information
+  networkServerLogLevel: 1
+
+  # IoT Edge Runtime configuration
+  EDGE_AGENT_VERSION: $(edgeAgentVersion)
+  EDGE_HUB_VERSION: $(edgeHubVersion)
+  EDGEHUB_OPTIMIZEFORPERFORMANCE: false
+  EDGEHUB_MQTTSETTINGS_ENABLED: false
+  EDGEHUB_HTTPSETTINGS_ENABLED: false
+  EDGEHUB_ROUTE: $(edgeHubRoute)
+
+  # LoRaWan Modules
+  NET_SRV_LOG_LEVEL: $(networkServerLogLevel)  
+  NET_SRV_LOGTO_UDP: true
+  NET_SRV_LOGTO_HUB: false
+  NET_SRV_IOTEDGE_TIMEOUT: 0
+  NET_SRV_VERSION: "" # Network Server module version
+  NET_SRV_LOG_TO_UDP_ADDRESS: 10.164.74.151 # Hostname of test runner
+  PKT_FWD_VERSION: "" # Packet Forward module version
+
+jobs:
+
+  # Runs integration tests in dedicated agent, while having modules deployed into PI (arm32v7)
+  test_runner_dedicated_agent:
+    name: Run tests in dedicated agent
+    strategy:
+      matrix:
+        testsToRun: [OTAAJoinTest, ABPTest, C2DMessageTest, OTAATest, MacTest, SensorDecodingTest, MultiGatewayTests, ClassCTest]
+    # needs: 
+      # - full_ci_deploy_amd
+      # - full_ci_deploy_facade_function
+    runs-on: [self-hosted, x64]
+    # if: env.RunTestsOnly == 'true'
+    timeout-minutes: 60
+    env:      
+      INTEGRATIONTEST_LeafDeviceSerialPort: '/dev/ttyACM0'
+      INTEGRATIONTEST_IoTHubEventHubConsumerGroup: 'reserved_integrationtest_amd'
+      INTEGRATIONTEST_LeafDeviceGatewayID: lora-device
+      INTEGRATIONTEST_DevicePrefix: '01'
+      INTEGRATIONTEST_EnsureHasEventDelayBetweenReadsInSeconds: 15
+      INTEGRATIONTEST_EnsureHasEventMaximumTries: 5
+
+    steps:
+
+    - name: 'Configure test in **/test/LoRaWan.IntegrationTest/appsettings.json' 
+      uses: cschleiden/replace-tokens@v1
+      with:
+        files: '**/test/LoRaWan.IntegrationTest/appsettings.json'
+      env:
+        INTEGRATIONTEST_IoTHubEventHubConnectionString: ${{ secrets.INTEGRATIONTEST_IoTHubEventHubConnectionString }}
+        INTEGRATIONTEST_IoTHubEventHubConsumerGroup: ${{ env.INTEGRATIONTEST_IoTHubEventHubConsumerGroup }}
+        INTEGRATIONTEST_IoTHubConnectionString: ${{ secrets.INTEGRATIONTEST_IoTHubConnectionString }}
+        INTEGRATIONTEST_EnsureHasEventDelayBetweenReadsInSeconds: ${{ env.INTEGRATIONTEST_EnsureHasEventDelayBetweenReadsInSeconds }}
+        INTEGRATIONTEST_EnsureHasEventMaximumTries: ${{ env.INTEGRATIONTEST_EnsureHasEventMaximumTries }}
+        INTEGRATIONTEST_LeafDeviceSerialPort: ${{ env.INTEGRATIONTEST_LeafDeviceSerialPort }}
+        INTEGRATIONTEST_LeafDeviceGatewayID: ${{ env.INTEGRATIONTEST_LeafDeviceGatewayID }}
+        INTEGRATIONTEST_DevicePrefix: ${{ env.INTEGRATIONTEST_DevicePrefix }}
+        INTEGRATIONTEST_FunctionAppCode: ${{ secrets.INTEGRATIONTEST_FunctionAppCode }}
+        INTEGRATIONTEST_FunctionAppBaseUrl: ${{ secrets.INTEGRATIONTEST_FunctionAppBaseUrl }}
+
+    - name: Build IntegrationTest
+      run: dotnet build --configuration ${{ env.buildConfiguration }} **/test/LoRaWan.IntegrationTest/LoRaWan.IntegrationTest.csproj
+
+    # Runs Integration tests, filtering out tests which are not in env.TestsToRun
+    - name: Integration testing ${{ matrix.testsToRun }}
+      if: contains("${{ env.TestsToRun }}", "${{ matrix.testsToRun }}")
+      run: |
+        echo ${{ matrix.testsToRun }}
+        if [[ "${{ env.TestsToRun }}" == *"${{ matrix.testsToRun }}"* ]]; then
+          echo "Running test ${{ matrix.testsToRun }}"   
+          dotnet test --logger trx --no-build --configuration ${{ env.buildConfiguration }} -p:ParallelizeTestCollections=false --filter "${{ matrix.testsToRun }}" **/test/LoRaWan.IntegrationTest/LoRaWan.IntegrationTest.csproj
+        else
+          echo "Not running ${{ matrix.testsToRun }}, test excluded"
+        fi
+        
+    # Upload test results as artifact
+    - uses: actions/upload-artifact@v1
+      with:
+        name: ${{ matrix.testsToRun }}-results
+        path: LoRaEngine/test/LoRaWan.IntegrationTest/TestResults

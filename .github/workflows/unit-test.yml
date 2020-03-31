@@ -1,0 +1,93 @@
+name: $(Build.SourceBranchName)_$(Build.Reason)_$(majorVersion).$(Build.BuildId)$(Rev:.r)
+
+# Enable CI and PR validation on branches master and dev
+on:
+  push:
+    branches: [ master, dev, pipeline-github-actions ]
+  pull_request:
+    branches: [ master, dev ]
+
+env:
+  
+  runTestsOnly: false
+  buildConfiguration: 'Release'
+  
+jobs:
+
+  # [Job] Smoke test job: ensure code compiles and unit tests are working
+  build_and_test:
+    name: Build and Test Solution
+    runs-on: ubuntu-16.04
+    
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+      
+    # build LoRa Engine
+    - name: Build LoRa Engine
+      run: dotnet build --configuration ${{ env.buildConfiguration }} LoRaEngine/LoRaEngine.sln
+
+    # build C# Samples/DecoderSample
+    - name: Build C# Samples/DecoderSample
+      run: dotnet build --configuration ${{ env.buildConfiguration }} Samples/DecoderSample 
+
+    # build LoRa Simulator
+    - name: Build LoRa Simulator
+      run: dotnet build --configuration ${{ env.buildConfiguration }} LoRaEngine/modules/LoRaSimulator/LoRaSimulator.sln
+
+    # Pull Redis Cache docker image
+    - name: Pulling Redis Cache image
+      run: docker pull redis:5.0.4-alpine
+
+    # Run unit tests
+    - name: Run unit tests
+      run: |
+        mkdir $(Build.SourcesDirectory)\results
+        dotnet test --logger trx LoRaEngine/test/LoRaWanNetworkServer.Test/*.csproj -r LoRaEngine/test/TestResults/  &&  dotnet test --logger trx LoRaEngine/modules/LoRaWanNetworkSrvModule/LoRaToolsTest/*.csproj -r LoRaEngine/test/TestResults/ && dotnet test --logger trx LoRaEngine/test/LoraKeysManagerFacade.Test/*.csproj -r LoRaEngine/test/TestResults/
+   
+    # Upload test results as artifact
+    - uses: actions/upload-artifact@v1
+      with:
+        name: unit-test-results
+        path: LoRaEngine/test/TestResults
+   
+    # Find out if full ci is enabled for Pull Request validation
+    - name: Check for CI label build on PR
+      id: check-ci-label
+      run: | 
+        echo "Looking for label at https://api.github.com/repos/$BUILD_REPOSITORY_ID/issues/$SYSTEM_PULLREQUEST_PULLREQUESTNUMBER/labels"
+        if curl -s "https://api.github.com/repos/$BUILD_REPOSITORY_ID/issues/$SYSTEM_PULLREQUEST_PULLREQUESTNUMBER/labels" | grep '"name": "fullci"'
+        then
+          echo "::set-env name=prWithCILabel::true"       
+          echo "fullci label found!"
+        fi
+      if: github.event_name == 'pull_request'
+   
+  # [Job] Build and deploy Facade Azure Function 
+  full_ci_deploy_facade_function:
+    name: Build and deploy Facade Azure Function   
+    needs: build_and_test
+    runs-on: ubuntu-16.04
+    env:
+      prWithCILabel:  $(prWithCILabel)
+      AZURE_FUNCTIONAPP_NAME: ms-lora-function-app
+      AZURE_FUNCTIONAPP_PACKAGE_PATH: 'LoRaEngine/LoraKeysManagerFacade/'
+
+    steps:
+       - uses: actions/checkout@v2
+         
+       - name: 'Resolve Project Dependencies Using Dotnet'
+         shell: bash
+         run: |
+           pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+           dotnet build --configuration Release --output ./output
+           popd
+           
+       - name: 'Run Azure Functions Action'
+         if: env.runTestsOnly != 'true' && env.prWithCILabel == 'true'
+         uses: Azure/functions-action@v1
+         id: fa
+         with:
+           app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+           package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
+           publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
