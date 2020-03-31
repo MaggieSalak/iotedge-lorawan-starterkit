@@ -60,7 +60,7 @@ jobs:
     steps:
     # build LoRa Engine
     - name: Build LoRa Engine
-      run: dotnet build --configuration ${{ env.buildConfiguration }} ../../LoRaEngine/LoRaEngine.sln
+      run: dotnet build --configuration ${{ env.buildConfiguration }} LoRaEngine/LoRaEngine.sln
 
     # build C# Samples/DecoderSample
     - name: Build C# Samples/DecoderSample
