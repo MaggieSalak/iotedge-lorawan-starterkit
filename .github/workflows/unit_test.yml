@@ -9,6 +9,8 @@ on:
 
 env:
   
+  runTestsOnly: false
+  
   # Major version
   majorVersion: 1.0.0
 
@@ -48,14 +50,14 @@ env:
   NET_SRV_VERSION: "" # Network Server module version
   NET_SRV_LOG_TO_UDP_ADDRESS: 10.164.74.151 # Hostname of test runner
   PKT_FWD_VERSION: "" # Packet Forward module version
-
+  
 jobs:
 
   # [Job] Smoke test job: ensure code compiles and unit tests are working
   build_and_test:
     name: Build and Test Solution
     runs-on: ubuntu-16.04
-    # if: variables['RunTestsOnly'] != true # do not run if RunTestsOnly == true
+    if: ${{ env.runTestsOnly }} != true # do not run if RunTestsOnly == true
     
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
