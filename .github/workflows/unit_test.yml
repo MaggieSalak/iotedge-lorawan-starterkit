@@ -51,7 +51,7 @@ env:
   NET_SRV_LOG_TO_UDP_ADDRESS: 10.164.74.151 # Hostname of test runner
   PKT_FWD_VERSION: "" # Packet Forward module version
   
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: './LoRaEngine/LoraKeysManagerFacade/'
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'LoRaEngine/LoraKeysManagerFacade/'
   AZURE_FUNCTIONAPP_NAME: lora-function-app
   
 jobs:
