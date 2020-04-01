@@ -93,15 +93,15 @@ jobs:
 #         dotnet test --logger trx LoRaEngine/test/LoRaWanNetworkServer.Test/*.csproj &&  dotnet test --logger trx LoRaEngine/modules/LoRaWanNetworkSrvModule/LoRaToolsTest/*.csproj && dotnet test --logger trx LoRaEngine/test/LoraKeysManagerFacade.Test/*.csproj
    
     # Find out if full ci is enabled for Pull Request validation
-    - name: Check for CI label build on PR
-      run: |
-        echo "Looking for label at https://api.github.com/repos/$BUILD_REPOSITORY_ID/issues/$SYSTEM_PULLREQUEST_PULLREQUESTNUMBER/labels"
-        if curl -s "https://api.github.com/repos/$BUILD_REPOSITORY_ID/issues/$SYSTEM_PULLREQUEST_PULLREQUESTNUMBER/labels" | grep '"name": "fullci"'
-        then
-          echo "::set-output name=prWithCILabel::true"       
-          echo "fullci label found!"
-        fi
-      if: github.event_name == 'pull_request'
+#     - name: Check for CI label build on PR
+#       run: |
+#         echo "Looking for label at https://api.github.com/repos/$BUILD_REPOSITORY_ID/issues/$SYSTEM_PULLREQUEST_PULLREQUESTNUMBER/labels"
+#         if curl -s "https://api.github.com/repos/$BUILD_REPOSITORY_ID/issues/$SYSTEM_PULLREQUEST_PULLREQUESTNUMBER/labels" | grep '"name": "fullci"'
+#         then
+#           echo "::set-output name=prWithCILabel::true"       
+#           echo "fullci label found!"
+#         fi
+#       if: github.event_name == 'pull_request'
    
   # [Job] Build and deploy Facade Azure Function 
   full_ci_deploy_facade_function:
