@@ -85,3 +85,26 @@ jobs:
       run: |
         mkdir $(Build.SourcesDirectory)\results
         dotnet test --logger trx LoRaEngine/test/LoRaWanNetworkServer.Test/*.csproj &&  dotnet test --logger trx LoRaEngine/modules/LoRaWanNetworkSrvModule/LoRaToolsTest/*.csproj && dotnet test --logger trx LoRaEngine/test/LoraKeysManagerFacade.Test/*.csproj
+   
+    # Find out if full ci is enabled for Pull Request validation
+    - name: Check for CI label build on PR
+      if: github.event_name == 'pull_request'
+      run: |
+        echo "Looking for label at https://api.github.com/repos/$BUILD_REPOSITORY_ID/issues/$SYSTEM_PULLREQUEST_PULLREQUESTNUMBER/labels"
+        if curl -s "https://api.github.com/repos/$BUILD_REPOSITORY_ID/issues/$SYSTEM_PULLREQUEST_PULLREQUESTNUMBER/labels" | grep '"name": "fullci"'
+        then
+          echo "::set-env name=prWithCILabel::true"       
+          echo "fullci label found!"
+        fi
+   
+  # [Job] Build, push and deploy arm32v7 IoT Edge Solution - primary gateway
+  full_ci_deploy_arm_primary:
+    name: Build, push and deploy arm32v7 IoT Edge Solution - Primary Gateway
+    needs: build_and_test
+    runs-on: ubuntu-16.04
+    env: 
+      IOT_DEPLOYMENT_ID: integrationtestarmprimary
+      VSTS_AGENT: "$(vstsAgentARM)"
+      RESET_PIN: $(RESET_PIN_PRIMARY)
+      # Defines image version to use in case in ARM architecture
+      DEVOPS_AGENT_IMAGE: "$(CONTAINER_REGISTRY_ADDRESS)/azuredevopsagent:$(DEVOPS_AGENT_IMAGE_VERSION)-arm32v7"
