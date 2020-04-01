@@ -35,6 +35,10 @@ env:
   # Network Server module level: 1 in order to get decoder information
   networkServerLogLevel: 1
 
+  # Azure Function configuration
+  AZURE_FUNCTIONAPP_NAME: masalak-lora-function-app
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'LoRaEngine/LoraKeysManagerFacade/'
+
   # IoT Edge Runtime configuration
   EDGE_AGENT_VERSION: $(edgeAgentVersion)
   EDGE_HUB_VERSION: $(edgeHubVersion)
@@ -51,16 +55,12 @@ env:
   NET_SRV_LOG_TO_UDP_ADDRESS: 10.164.74.151 # Hostname of test runner
   PKT_FWD_VERSION: "" # Packet Forward module version
   
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'LoRaEngine/LoraKeysManagerFacade/'
-  AZURE_FUNCTIONAPP_NAME: lora-function-app
-  
 jobs:
 
   # [Job] Smoke test job: ensure code compiles and unit tests are working
   build_and_test:
     name: Build and Test Solution
     runs-on: ubuntu-16.04
-    # if: env.RunTestsOnly != 'true' # do not run if RunTestsOnly == true
     
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -107,16 +107,11 @@ jobs:
   full_ci_deploy_facade_function:
     name: Build and deploy Facade Azure Function   
     needs: build_and_test
-    #if: and(ne(variables['RunTestsOnly'], 'true'), and(succeeded(), or(eq(dependencies.build_and_test.outputs['checkPrCILabel.prWithCILabel'], true), or(eq(variables['FullCI'],'true'), in(variables['Build.SourceBranch'], 'refs/heads/master', 'refs/heads/dev')))))
     runs-on: ubuntu-16.04
 
     steps:
        - uses: actions/checkout@v2
-#        - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
-#          uses: actions/setup-dotnet@v1
-#          with:
-#            dotnet-version: ${{ env.DOTNET_VERSION }}
-
+         
        - name: 'Resolve Project Dependencies Using Dotnet'
          shell: bash
          run: |
