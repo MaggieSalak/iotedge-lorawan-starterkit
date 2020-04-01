@@ -98,13 +98,13 @@ jobs:
         fi
    
   # [Job] Build, push and deploy arm32v7 IoT Edge Solution - primary gateway
-  full_ci_deploy_arm_primary:
-    name: Build, push and deploy arm32v7 IoT Edge Solution - Primary Gateway
-    needs: build_and_test
-    runs-on: ubuntu-16.04
-    env: 
-      IOT_DEPLOYMENT_ID: integrationtestarmprimary
-      VSTS_AGENT: "$(vstsAgentARM)"
-      RESET_PIN: $(RESET_PIN_PRIMARY)
-      # Defines image version to use in case in ARM architecture
-      DEVOPS_AGENT_IMAGE: "$(CONTAINER_REGISTRY_ADDRESS)/azuredevopsagent:$(DEVOPS_AGENT_IMAGE_VERSION)-arm32v7"
+#   full_ci_deploy_arm_primary:
+#     name: Build, push and deploy arm32v7 IoT Edge Solution - Primary Gateway
+#     needs: build_and_test
+#     runs-on: ubuntu-16.04
+#     env: 
+#       IOT_DEPLOYMENT_ID: integrationtestarmprimary
+#       VSTS_AGENT: "$(vstsAgentARM)"
+#       RESET_PIN: $(RESET_PIN_PRIMARY)
+#       # Defines image version to use in case in ARM architecture
+#       DEVOPS_AGENT_IMAGE: "$(CONTAINER_REGISTRY_ADDRESS)/azuredevopsagent:$(DEVOPS_AGENT_IMAGE_VERSION)-arm32v7"
