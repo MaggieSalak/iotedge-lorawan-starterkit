@@ -51,6 +51,9 @@ env:
   NET_SRV_LOG_TO_UDP_ADDRESS: 10.164.74.151 # Hostname of test runner
   PKT_FWD_VERSION: "" # Packet Forward module version
   
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: './LoRaEngine/LoraKeysManagerFacade/'
+  AZURE_FUNCTIONAPP_NAME: lora-function-app
+  
 jobs:
 
   # [Job] Smoke test job: ensure code compiles and unit tests are working
@@ -100,3 +103,29 @@ jobs:
         fi
       if: github.event_name == 'pull_request'
    
+  # [Job] Build and deploy Facade Azure Function 
+  full_ci_deploy_facade_function:
+    name: Build and deploy Facade Azure Function   
+    needs: build_and_test
+    #if: and(ne(variables['RunTestsOnly'], 'true'), and(succeeded(), or(eq(dependencies.build_and_test.outputs['checkPrCILabel.prWithCILabel'], true), or(eq(variables['FullCI'],'true'), in(variables['Build.SourceBranch'], 'refs/heads/master', 'refs/heads/dev')))))
+    runs-on: ubuntu-16.04
+
+    steps:
+#        - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
+#          uses: actions/setup-dotnet@v1
+#          with:
+#            dotnet-version: ${{ env.DOTNET_VERSION }}
+
+       - name: 'Resolve Project Dependencies Using Dotnet'
+         shell: bash
+         run: |
+           pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+           dotnet build --configuration Release --output ./output
+           popd
+       - name: 'Run Azure Functions Action'
+         uses: Azure/functions-action@v1
+         id: fa
+         with:
+           app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+           package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
+           publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
