@@ -5,7 +5,7 @@ on:
   push:
     branches: [ master, dev, pipeline-github-actions ]
   pull_request:
-    branches: [ master, dev ]
+    branches: [ master, dev, pipeline-github-actions ]
 
 env:
   
@@ -88,14 +88,16 @@ jobs:
    
     # Find out if full ci is enabled for Pull Request validation
     - name: Check for CI label build on PR
-      if: github.event_name == 'pull_request'
       run: |
         echo "Looking for label at https://api.github.com/repos/$BUILD_REPOSITORY_ID/issues/$SYSTEM_PULLREQUEST_PULLREQUESTNUMBER/labels"
         if curl -s "https://api.github.com/repos/$BUILD_REPOSITORY_ID/issues/$SYSTEM_PULLREQUEST_PULLREQUESTNUMBER/labels" | grep '"name": "fullci"'
         then
-          echo "::set-env name=prWithCILabel::true"       
+          echo "label found!"       
+          echo "##vso[task.setvariable variable=prWithCILabel;isOutput=true]true"
           echo "fullci label found!"
+          echo "hello"
         fi
+      if: github.event_name == 'pull_request'
    
   # [Job] Build, push and deploy arm32v7 IoT Edge Solution - primary gateway
 #   full_ci_deploy_arm_primary:
