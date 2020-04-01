@@ -56,7 +56,7 @@ jobs:
   # [Job] Smoke test job: ensure code compiles and unit tests are working
   build_and_test:
     name: Build and Test Solution
-    runs-on: ubuntu-16.04
+    runs-on: [self-hosted, x64]
     # if: env.RunTestsOnly != 'true' # do not run if RunTestsOnly == true
     
     steps:
