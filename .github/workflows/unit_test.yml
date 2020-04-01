@@ -57,7 +57,7 @@ jobs:
   build_and_test:
     name: Build and Test Solution
     runs-on: ubuntu-16.04
-    if: env.RunTestsOnly != 'true' # do not run if RunTestsOnly == true
+    # if: env.RunTestsOnly != 'true' # do not run if RunTestsOnly == true
     
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -70,14 +70,17 @@ jobs:
 
 #     # build C# Samples/DecoderSample
 #     - name: Build C# Samples/DecoderSample
+#       if: env.RunTestsOnly != 'true'
 #       run: dotnet build --configuration ${{ env.buildConfiguration }} Samples/DecoderSample 
 
 #     # build LoRa Simulator
 #     - name: Build LoRa Simulator
+#       if: env.RunTestsOnly != 'true'
 #       run: dotnet build --configuration ${{ env.buildConfiguration }} LoRaEngine/modules/LoRaSimulator/LoRaSimulator.sln
 
 #     # Pull Redis Cache docker image
 #     - name: Pulling Redis Cache image
+#       if: env.RunTestsOnly != 'true'
 #       run: docker pull redis:5.0.4-alpine
 
     # Run unit tests
@@ -97,14 +100,3 @@ jobs:
         fi
       if: github.event_name == 'pull_request'
    
-  # [Job] Build, push and deploy arm32v7 IoT Edge Solution - primary gateway
-#   full_ci_deploy_arm_primary:
-#     name: Build, push and deploy arm32v7 IoT Edge Solution - Primary Gateway
-#     needs: build_and_test
-#     runs-on: ubuntu-16.04
-#     env: 
-#       IOT_DEPLOYMENT_ID: integrationtestarmprimary
-#       VSTS_AGENT: "$(vstsAgentARM)"
-#       RESET_PIN: $(RESET_PIN_PRIMARY)
-#       # Defines image version to use in case in ARM architecture
-#       DEVOPS_AGENT_IMAGE: "$(CONTAINER_REGISTRY_ADDRESS)/azuredevopsagent:$(DEVOPS_AGENT_IMAGE_VERSION)-arm32v7"
