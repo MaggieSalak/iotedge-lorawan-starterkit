@@ -111,6 +111,7 @@ jobs:
     runs-on: ubuntu-16.04
 
     steps:
+       - uses: actions/checkout@v2
 #        - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
 #          uses: actions/setup-dotnet@v1
 #          with:
