@@ -64,21 +64,21 @@ jobs:
     - uses: actions/checkout@v2
       
     # build LoRa Engine
-    - name: Build LoRa Engine
-      if: env.RunTestsOnly != 'true'
-      run: dotnet build --configuration ${{ env.buildConfiguration }} LoRaEngine/LoRaEngine.sln
+#     - name: Build LoRa Engine
+#       if: env.RunTestsOnly != 'true'
+#       run: dotnet build --configuration ${{ env.buildConfiguration }} LoRaEngine/LoRaEngine.sln
 
-    # build C# Samples/DecoderSample
-    - name: Build C# Samples/DecoderSample
-      run: dotnet build --configuration ${{ env.buildConfiguration }} Samples/DecoderSample 
+#     # build C# Samples/DecoderSample
+#     - name: Build C# Samples/DecoderSample
+#       run: dotnet build --configuration ${{ env.buildConfiguration }} Samples/DecoderSample 
 
-    # build LoRa Simulator
-    - name: Build LoRa Simulator
-      run: dotnet build --configuration ${{ env.buildConfiguration }} LoRaEngine/modules/LoRaSimulator/LoRaSimulator.sln
+#     # build LoRa Simulator
+#     - name: Build LoRa Simulator
+#       run: dotnet build --configuration ${{ env.buildConfiguration }} LoRaEngine/modules/LoRaSimulator/LoRaSimulator.sln
 
-    # Pull Redis Cache docker image
-    - name: Pulling Redis Cache image
-      run: docker pull redis:5.0.4-alpine
+#     # Pull Redis Cache docker image
+#     - name: Pulling Redis Cache image
+#       run: docker pull redis:5.0.4-alpine
 
     # Run unit tests
 #     - name: Run unit tests
