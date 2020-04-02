@@ -39,6 +39,8 @@ env:
   AZURE_FUNCTIONAPP_NAME: ms-lora-function-app
   AZURE_FUNCTIONAPP_PACKAGE_PATH: 'LoRaEngine/LoraKeysManagerFacade/'
 
+  DOTNET_VERSION: 3.1
+
   # IoT Edge Runtime configuration
   EDGE_AGENT_VERSION: $(edgeAgentVersion)
   EDGE_HUB_VERSION: $(edgeHubVersion)
@@ -79,6 +81,11 @@ jobs:
     steps:
       
     - uses: actions/checkout@v2
+      
+    - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
           
     - name: 'Configure test in **/test/LoRaWan.IntegrationTest/appsettings.json' 
       uses: cschleiden/replace-tokens@v1
