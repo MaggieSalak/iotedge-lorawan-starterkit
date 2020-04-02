@@ -75,7 +75,11 @@ jobs:
       INTEGRATIONTEST_DevicePrefix: ''
       INTEGRATIONTEST_EnsureHasEventDelayBetweenReadsInSeconds: 15
       INTEGRATIONTEST_EnsureHasEventMaximumTries: 5
+    
     steps:
+      
+    - uses: actions/checkout@v2
+          
     - name: 'Configure test in **/test/LoRaWan.IntegrationTest/appsettings.json' 
       uses: cschleiden/replace-tokens@v1
       with:
