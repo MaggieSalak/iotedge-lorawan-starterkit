@@ -39,7 +39,7 @@ env:
   AZURE_FUNCTIONAPP_NAME: ms-lora-function-app
   AZURE_FUNCTIONAPP_PACKAGE_PATH: 'LoRaEngine/LoraKeysManagerFacade/'
 
-  DOTNET_VERSION: 3.1
+  DOTNET_VERSION: 3.1.101
 
   # IoT Edge Runtime configuration
   EDGE_AGENT_VERSION: $(edgeAgentVersion)
