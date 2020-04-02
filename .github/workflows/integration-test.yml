@@ -69,8 +69,8 @@ jobs:
     # if: env.IoTEdgeDeviceAMD != '' || env.RunTestsOnly == 'true'
     timeout-minutes: 60
     env:      
-      INTEGRATIONTEST_LeafDeviceSerialPort: "/dev/ttyACM0"
-      INTEGRATIONTEST_IoTHubEventHubConsumerGroup: "reserved_integrationtest_amd" 
+      INTEGRATIONTEST_LeafDeviceSerialPort: '/dev/ttyACM0'
+      INTEGRATIONTEST_IoTHubEventHubConsumerGroup: 'reserved_integrationtest_amd'
       INTEGRATIONTEST_LeafDeviceGatewayID: ''
       INTEGRATIONTEST_DevicePrefix: ''
       INTEGRATIONTEST_EnsureHasEventDelayBetweenReadsInSeconds: 15
@@ -91,6 +91,7 @@ jobs:
         INTEGRATIONTEST_DevicePrefix: ${{ env.INTEGRATIONTEST_DevicePrefix }}
         INTEGRATIONTEST_FunctionAppCode: ${{ secrets.INTEGRATIONTEST_FunctionAppCode }}
         INTEGRATIONTEST_FunctionAppBaseUrl: ${{ secrets.INTEGRATIONTEST_FunctionAppBaseUrl }}
-        
-    - name: 'Print file'
-      run: cat LoRaEngine/test/LoRaWan.IntegrationTest/appsettings.json
+      
+    # Runs Integration testing only if no additional integration test arguments were passed
+    - name: Build IntegrationTest
+      run: dotnet build --configuration ${{ env.buildConfiguration }} **/test/LoRaWan.IntegrationTest/LoRaWan.IntegrationTest.csproj
