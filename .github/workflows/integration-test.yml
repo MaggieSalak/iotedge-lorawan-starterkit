@@ -35,12 +35,6 @@ env:
   # Network Server module level: 1 in order to get decoder information
   networkServerLogLevel: 1
 
-  # Azure Function configuration
-  AZURE_FUNCTIONAPP_NAME: ms-lora-function-app
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'LoRaEngine/LoraKeysManagerFacade/'
-
-  DOTNET_VERSION: 2.1
-
   # IoT Edge Runtime configuration
   EDGE_AGENT_VERSION: $(edgeAgentVersion)
   EDGE_HUB_VERSION: $(edgeHubVersion)
@@ -50,6 +44,8 @@ env:
   EDGEHUB_ROUTE: $(edgeHubRoute)
   
   # Integration test configuration
+  AdditionalIntegrationTestArguments: ''
+  IntegrationTestsToRun: ''
   
   # LoRaWan Modules
   NET_SRV_LOG_LEVEL: $(networkServerLogLevel)  
@@ -84,11 +80,6 @@ jobs:
     steps:
       
     - uses: actions/checkout@v2
-      
-#     - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
-#       uses: actions/setup-dotnet@v1
-#       with:
-#         dotnet-version: ${{ env.DOTNET_VERSION }}
           
     - name: 'Configure test in **/test/LoRaWan.IntegrationTest/appsettings.json' 
       uses: cschleiden/replace-tokens@v1
@@ -111,8 +102,12 @@ jobs:
       run: dotnet build --configuration ${{ env.buildConfiguration }} **/test/LoRaWan.IntegrationTest/LoRaWan.IntegrationTest.csproj
 
     - name: Integration testing ${{ matrix.testsToRun }}
-      # if: or(and(eq(variables['AdditionalIntegrationTestArguments'], ''), eq(variables['IntegrationTestsToRun'], '')), contains(variables['IntegrationTestsToRun'], '${{test}}'))
+      if: (env.AdditionalIntegrationTestArguments == '' && env.IntegrationTestsToRun == '') || contains(env.IntegrationTestsToRun, '${{ matrix.testsToRun }}')
       run: |
         echo ${{ matrix.testsToRun }} 
         dotnet test --no-build --configuration ${{ env.buildConfiguration }} -p:ParallelizeTestCollections=false --filter LoRaWan.IntegrationTest.${{ matrix.testsToRun }} **/test/LoRaWan.IntegrationTest/LoRaWan.IntegrationTest.csproj
       
+    # Run integration test with filters only, no built-in retries
+    - name: Run integration test with additional arguments (no retry)
+      if: env.AdditionalIntegrationTestArguments != ''
+      run: dotnet test --configuration ${{ env.buildConfiguration }} -p:ParallelizeTestCollections=false ${{ env.AdditionalIntegrationTestArguments }} **/test/LoRaWan.IntegrationTest/LoRaWan.IntegrationTest.csproj
