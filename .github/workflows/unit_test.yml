@@ -3,7 +3,7 @@ name: $(Build.SourceBranchName)_$(Build.Reason)_$(majorVersion).$(Build.BuildId)
 # Enable CI and PR validation on branches master and dev
 on:
   push:
-    branches: [ master, dev, pipeline-github-actions, pipeline-int-test ]
+    branches: [ master, dev, pipeline-github-actions ]
   pull_request:
     branches: [ master, dev, pipeline-github-actions ]
 
@@ -46,6 +46,10 @@ env:
   EDGEHUB_MQTTSETTINGS_ENABLED: false
   EDGEHUB_HTTPSETTINGS_ENABLED: false
   EDGEHUB_ROUTE: $(edgeHubRoute)
+  
+  # Integration test configuration
+  IoTEdgeDeviceAMD: ''
+  
   # LoRaWan Modules
   NET_SRV_LOG_LEVEL: $(networkServerLogLevel)  
   NET_SRV_LOGTO_UDP: true
@@ -126,3 +130,23 @@ jobs:
            app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
            package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
            publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+
+  test_runner_amd_eu:
+    name: Run tests in AMD device (EU)
+    # needs: 
+      # - full_ci_deploy_amd
+      # - full_ci_deploy_facade_function
+    runs-on: [self-hosted, x64]
+    # condition: and(ne(variables['IoTEdgeDeviceAMD'], ''), or(succeeded(), eq(variables['RunTestsOnly'], 'true')))
+    timeout-minutes: 60
+    env:      
+      INTEGRATIONTEST_LeafDeviceSerialPort: "/dev/ttyACM0"
+      INTEGRATIONTEST_IoTHubEventHubConsumerGroup: "reserved_integrationtest_amd" 
+      INTEGRATIONTEST_LeafDeviceGatewayID: $(IoTEdgeDeviceAMD)
+      INTEGRATIONTEST_FunctionAppBaseUrl: $(FACADE_SERVER_URL)
+      INTEGRATIONTEST_FunctionAppCode: $(FACADE_AUTH_CODE)
+      INTEGRATIONTEST_DevicePrefix: ''
+    steps:
+    - uses: azure-pipeline-integration-test-steps-template.yaml
+      with:
+        platform: amd64
