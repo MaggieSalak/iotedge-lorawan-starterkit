@@ -66,7 +66,7 @@ jobs:
     name: Run tests in AMD device (EU)
     strategy:
       matrix:
-        testsToRun: [OTAAJoinTest, ABPTest]
+        testsToRun: [OTAAJoinTest]
     # needs: 
       # - full_ci_deploy_amd
       # - full_ci_deploy_facade_function
