@@ -70,83 +70,63 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
       
-    # build LoRa Engine
-    - name: Build LoRa Engine
-      if: env.RunTestsOnly != 'true'
-      run: dotnet build --configuration ${{ env.buildConfiguration }} LoRaEngine/LoRaEngine.sln
+#     # build LoRa Engine
+#     - name: Build LoRa Engine
+#       if: env.RunTestsOnly != 'true'
+#       run: dotnet build --configuration ${{ env.buildConfiguration }} LoRaEngine/LoRaEngine.sln
 
-    # build C# Samples/DecoderSample
-    - name: Build C# Samples/DecoderSample
-      if: env.RunTestsOnly != 'true'
-      run: dotnet build --configuration ${{ env.buildConfiguration }} Samples/DecoderSample 
+#     # build C# Samples/DecoderSample
+#     - name: Build C# Samples/DecoderSample
+#       if: env.RunTestsOnly != 'true'
+#       run: dotnet build --configuration ${{ env.buildConfiguration }} Samples/DecoderSample 
 
-    # build LoRa Simulator
-    - name: Build LoRa Simulator
-      if: env.RunTestsOnly != 'true'
-      run: dotnet build --configuration ${{ env.buildConfiguration }} LoRaEngine/modules/LoRaSimulator/LoRaSimulator.sln
+#     # build LoRa Simulator
+#     - name: Build LoRa Simulator
+#       if: env.RunTestsOnly != 'true'
+#       run: dotnet build --configuration ${{ env.buildConfiguration }} LoRaEngine/modules/LoRaSimulator/LoRaSimulator.sln
 
-    # Pull Redis Cache docker image
-    - name: Pulling Redis Cache image
-      if: env.RunTestsOnly != 'true'
-      run: docker pull redis:5.0.4-alpine
+#     # Pull Redis Cache docker image
+#     - name: Pulling Redis Cache image
+#       if: env.RunTestsOnly != 'true'
+#       run: docker pull redis:5.0.4-alpine
 
-    # Run unit tests
-    - name: Run unit tests
-      run: |
-        mkdir $(Build.SourcesDirectory)\results
-        dotnet test --logger trx LoRaEngine/test/LoRaWanNetworkServer.Test/*.csproj &&  dotnet test --logger trx LoRaEngine/modules/LoRaWanNetworkSrvModule/LoRaToolsTest/*.csproj && dotnet test --logger trx LoRaEngine/test/LoraKeysManagerFacade.Test/*.csproj
+#     # Run unit tests
+#     - name: Run unit tests
+#       run: |
+#         mkdir $(Build.SourcesDirectory)\results
+#         dotnet test --logger trx LoRaEngine/test/LoRaWanNetworkServer.Test/*.csproj &&  dotnet test --logger trx LoRaEngine/modules/LoRaWanNetworkSrvModule/LoRaToolsTest/*.csproj && dotnet test --logger trx LoRaEngine/test/LoraKeysManagerFacade.Test/*.csproj
    
-    # Find out if full ci is enabled for Pull Request validation
-    - name: Check for CI label build on PR
-      run: |
-        echo "Looking for label at https://api.github.com/repos/$BUILD_REPOSITORY_ID/issues/$SYSTEM_PULLREQUEST_PULLREQUESTNUMBER/labels"
-        if curl -s "https://api.github.com/repos/$BUILD_REPOSITORY_ID/issues/$SYSTEM_PULLREQUEST_PULLREQUESTNUMBER/labels" | grep '"name": "fullci"'
-        then
-          echo "::set-output name=prWithCILabel::true"       
-          echo "fullci label found!"
-        fi
-      if: github.event_name == 'pull_request'
+#     # Find out if full ci is enabled for Pull Request validation
+#     - name: Check for CI label build on PR
+#       run: |
+#         echo "Looking for label at https://api.github.com/repos/$BUILD_REPOSITORY_ID/issues/$SYSTEM_PULLREQUEST_PULLREQUESTNUMBER/labels"
+#         if curl -s "https://api.github.com/repos/$BUILD_REPOSITORY_ID/issues/$SYSTEM_PULLREQUEST_PULLREQUESTNUMBER/labels" | grep '"name": "fullci"'
+#         then
+#           echo "::set-output name=prWithCILabel::true"       
+#           echo "fullci label found!"
+#         fi
+#       if: github.event_name == 'pull_request'
    
   # [Job] Build and deploy Facade Azure Function 
-  full_ci_deploy_facade_function:
-    name: Build and deploy Facade Azure Function   
-    needs: build_and_test
-    runs-on: ubuntu-16.04
+#   full_ci_deploy_facade_function:
+#     name: Build and deploy Facade Azure Function   
+#     needs: build_and_test
+#     runs-on: ubuntu-16.04
 
-    steps:
-       - uses: actions/checkout@v2
+#     steps:
+#        - uses: actions/checkout@v2
          
-       - name: 'Resolve Project Dependencies Using Dotnet'
-         shell: bash
-         run: |
-           pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
-           dotnet build --configuration Release --output ./output
-           popd
+#        - name: 'Resolve Project Dependencies Using Dotnet'
+#          shell: bash
+#          run: |
+#            pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+#            dotnet build --configuration Release --output ./output
+#            popd
            
-       - name: 'Run Azure Functions Action'
-         uses: Azure/functions-action@v1
-         id: fa
-         with:
-           app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
-           package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
-           publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
-
-  test_runner_amd_eu:
-    name: Run tests in AMD device (EU)
-    # needs: 
-      # - full_ci_deploy_amd
-      # - full_ci_deploy_facade_function
-    runs-on: [self-hosted, x64]
-    # condition: and(ne(variables['IoTEdgeDeviceAMD'], ''), or(succeeded(), eq(variables['RunTestsOnly'], 'true')))
-    timeout-minutes: 60
-    env:      
-      INTEGRATIONTEST_LeafDeviceSerialPort: "/dev/ttyACM0"
-      INTEGRATIONTEST_IoTHubEventHubConsumerGroup: "reserved_integrationtest_amd" 
-      INTEGRATIONTEST_LeafDeviceGatewayID: $(IoTEdgeDeviceAMD)
-      INTEGRATIONTEST_FunctionAppBaseUrl: $(FACADE_SERVER_URL)
-      INTEGRATIONTEST_FunctionAppCode: $(FACADE_AUTH_CODE)
-      INTEGRATIONTEST_DevicePrefix: ''
-    steps:
-    - uses: azure-pipeline-integration-test-steps-template.yaml
-      with:
-        platform: amd64
+#        - name: 'Run Azure Functions Action'
+#          uses: Azure/functions-action@v1
+#          id: fa
+#          with:
+#            app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+#            package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
+#            publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
