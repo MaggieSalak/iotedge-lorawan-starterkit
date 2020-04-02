@@ -11,6 +11,11 @@ env:
   
   RunTestsOnly: false
   
+  # Integration test configuration
+  AdditionalIntegrationTestArguments: ''
+  IntegrationTestsToRun: ''
+  IoTEdgeDeviceAMD: ''
+  
   # Major version
   majorVersion: 1.0.0
 
@@ -42,10 +47,6 @@ env:
   EDGEHUB_MQTTSETTINGS_ENABLED: false
   EDGEHUB_HTTPSETTINGS_ENABLED: false
   EDGEHUB_ROUTE: $(edgeHubRoute)
-  
-  # Integration test configuration
-  AdditionalIntegrationTestArguments: ''
-  IntegrationTestsToRun: ''
   
   # LoRaWan Modules
   NET_SRV_LOG_LEVEL: $(networkServerLogLevel)  
