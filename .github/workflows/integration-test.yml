@@ -64,6 +64,9 @@ jobs:
 
   test_runner_amd_eu:
     name: Run tests in AMD device (EU)
+    strategy:
+      matrix:
+        testsToRun: [OTAAJoinTest, ABPTest]
     # needs: 
       # - full_ci_deploy_amd
       # - full_ci_deploy_facade_function
@@ -106,3 +109,10 @@ jobs:
     # Runs Integration testing only if no additional integration test arguments were passed
     - name: Build IntegrationTest
       run: dotnet build --configuration ${{ env.buildConfiguration }} **/test/LoRaWan.IntegrationTest/LoRaWan.IntegrationTest.csproj
+
+    - name: Integration testing ${{ matrix.testsToRun }}
+      # if: or(and(eq(variables['AdditionalIntegrationTestArguments'], ''), eq(variables['IntegrationTestsToRun'], '')), contains(variables['IntegrationTestsToRun'], '${{test}}'))
+      run: |
+        echo ${{ matrix.testsToRun }} 
+        dotnet test --no-build --configuration ${{ env.buildConfiguration }} -p:ParallelizeTestCollections=false --filter LoRaWan.IntegrationTest.${{ matrix.testsToRun }} **/test/LoRaWan.IntegrationTest/LoRaWan.IntegrationTest.csproj
+      
