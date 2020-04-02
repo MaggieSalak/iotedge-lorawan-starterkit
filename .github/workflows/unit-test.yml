@@ -70,10 +70,10 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
       
-#     # build LoRa Engine
-#     - name: Build LoRa Engine
-#       if: env.RunTestsOnly != 'true'
-#       run: dotnet build --configuration ${{ env.buildConfiguration }} LoRaEngine/LoRaEngine.sln
+    # build LoRa Engine
+    - name: Build LoRa Engine
+      if: env.RunTestsOnly != 'true'
+      run: dotnet build --configuration ${{ env.buildConfiguration }} LoRaEngine/LoRaEngine.sln
 
 #     # build C# Samples/DecoderSample
 #     - name: Build C# Samples/DecoderSample
