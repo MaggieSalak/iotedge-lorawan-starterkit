@@ -59,8 +59,9 @@ env:
   
 jobs:
 
-  test_runner_amd_eu:
-    name: Run tests in AMD device (EU)
+  # Runs integration tests in dedicated agent, while having modules deployed into PI (arm32v7)
+  test_runner_dedicated_agent:
+    name: Run tests in dedicated agent
     strategy:
       matrix:
         testsToRun: [OTAAJoinTest]
@@ -68,13 +69,13 @@ jobs:
       # - full_ci_deploy_amd
       # - full_ci_deploy_facade_function
     runs-on: [self-hosted, x64]
-    # if: env.IoTEdgeDeviceAMD != '' || env.RunTestsOnly == 'true'
+    # if: env.RunTestsOnly == 'true'
     timeout-minutes: 60
     env:      
       INTEGRATIONTEST_LeafDeviceSerialPort: '/dev/ttyACM0'
       INTEGRATIONTEST_IoTHubEventHubConsumerGroup: 'reserved_integrationtest_amd'
-      INTEGRATIONTEST_LeafDeviceGatewayID: ''
-      INTEGRATIONTEST_DevicePrefix: ''
+      INTEGRATIONTEST_LeafDeviceGatewayID: lora-device
+      INTEGRATIONTEST_DevicePrefix: '01'
       INTEGRATIONTEST_EnsureHasEventDelayBetweenReadsInSeconds: 15
       INTEGRATIONTEST_EnsureHasEventMaximumTries: 5
     
