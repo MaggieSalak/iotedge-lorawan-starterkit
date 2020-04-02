@@ -49,6 +49,9 @@ env:
   
   # Integration test configuration
   IoTEdgeDeviceAMD: ''
+  INTEGRATIONTEST_EnsureHasEventDelayBetweenReadsInSeconds: 15
+  INTEGRATIONTEST_EnsureHasEventMaximumTries: 5
+  INTEGRATIONTEST_DevicePrefix: '01'
   
   # LoRaWan Modules
   NET_SRV_LOG_LEVEL: $(networkServerLogLevel)  
@@ -82,4 +85,11 @@ jobs:
       with:
         files: '**/test/LoRaWan.IntegrationTest/appsettings.json'
       env:
-        INTEGRATIONTEST_IoTHubEventHubConnectionString: 
+        INTEGRATIONTEST_IoTHubEventHubConnectionString: ${{ secrets.INTEGRATIONTEST_IoTHubEventHubConnectionString }}
+        INTEGRATIONTEST_IoTHubEventHubConsumerGroup: ${{ secrets.INTEGRATIONTEST_IoTHubEventHubConsumerGroup }}
+        INTEGRATIONTEST_IoTHubConnectionString: ${{ secrets.INTEGRATIONTEST_IoTHubConnectionString }}
+        INTEGRATIONTEST_EnsureHasEventDelayBetweenReadsInSeconds: ${{ env.INTEGRATIONTEST_EnsureHasEventDelayBetweenReadsInSeconds }}
+        INTEGRATIONTEST_EnsureHasEventMaximumTries: ${{ env.INTEGRATIONTEST_EnsureHasEventMaximumTries }}
+        INTEGRATIONTEST_DevicePrefix: ${{ env.INTEGRATIONTEST_DevicePrefix }}
+        INTEGRATIONTEST_FunctionAppCode: ${{ secrets.INTEGRATIONTEST_FunctionAppCode }}
+        INTEGRATIONTEST_FunctionAppBaseUrl: ${{ secrets.INTEGRATIONTEST_FunctionAppBaseUrl }}
