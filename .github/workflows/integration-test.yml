@@ -91,3 +91,6 @@ jobs:
         INTEGRATIONTEST_DevicePrefix: ${{ env.INTEGRATIONTEST_DevicePrefix }}
         INTEGRATIONTEST_FunctionAppCode: ${{ secrets.INTEGRATIONTEST_FunctionAppCode }}
         INTEGRATIONTEST_FunctionAppBaseUrl: ${{ secrets.INTEGRATIONTEST_FunctionAppBaseUrl }}
+        
+    - name: 'Print file'
+      run: cat LoRaEngine/test/LoRaWan.IntegrationTest/appsettings.json
