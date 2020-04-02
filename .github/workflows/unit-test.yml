@@ -3,7 +3,7 @@ name: $(Build.SourceBranchName)_$(Build.Reason)_$(majorVersion).$(Build.BuildId)
 # Enable CI and PR validation on branches master and dev
 on:
   push:
-    branches: [ master, dev, pipeline-github-actions ]
+    branches: [ master, dev, pipeline-github-actions, pipeline-int-test ]
   pull_request:
     branches: [ master, dev, pipeline-github-actions ]
 
@@ -34,10 +34,6 @@ env:
 
   # Network Server module level: 1 in order to get decoder information
   networkServerLogLevel: 1
-
-  # Azure Function configuration
-  AZURE_FUNCTIONAPP_NAME: ms-lora-function-app
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'LoRaEngine/LoraKeysManagerFacade/'
 
   # IoT Edge Runtime configuration
   EDGE_AGENT_VERSION: $(edgeAgentVersion)
@@ -105,25 +101,28 @@ jobs:
 #       if: github.event_name == 'pull_request'
    
   # [Job] Build and deploy Facade Azure Function 
-#   full_ci_deploy_facade_function:
-#     name: Build and deploy Facade Azure Function   
-#     needs: build_and_test
-#     runs-on: ubuntu-16.04
+  full_ci_deploy_facade_function:
+    name: Build and deploy Facade Azure Function   
+    needs: build_and_test
+    runs-on: ubuntu-16.04
+    env:
+      AZURE_FUNCTIONAPP_NAME: ms-lora-function-app
+      AZURE_FUNCTIONAPP_PACKAGE_PATH: 'LoRaEngine/LoraKeysManagerFacade/'
 
-#     steps:
-#        - uses: actions/checkout@v2
+    steps:
+       - uses: actions/checkout@v2
          
-#        - name: 'Resolve Project Dependencies Using Dotnet'
-#          shell: bash
-#          run: |
-#            pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
-#            dotnet build --configuration Release --output ./output
-#            popd
+       - name: 'Resolve Project Dependencies Using Dotnet'
+         shell: bash
+         run: |
+           pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+           dotnet build --configuration Release --output ./output
+           popd
            
-#        - name: 'Run Azure Functions Action'
-#          uses: Azure/functions-action@v1
-#          id: fa
-#          with:
-#            app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
-#            package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
-#            publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+       - name: 'Run Azure Functions Action'
+         uses: Azure/functions-action@v1
+         id: fa
+         with:
+           app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+           package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
+           publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
