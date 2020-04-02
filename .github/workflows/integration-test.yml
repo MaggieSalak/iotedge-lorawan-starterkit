@@ -66,7 +66,7 @@ jobs:
       # - full_ci_deploy_amd
       # - full_ci_deploy_facade_function
     runs-on: [self-hosted, x64]
-    # condition: and(ne(variables['IoTEdgeDeviceAMD'], ''), or(succeeded(), eq(variables['RunTestsOnly'], 'true')))
+    if: env.IoTEdgeDeviceAMD != '' || env.RunTestsOnly == 'true'
     timeout-minutes: 60
     env:      
       INTEGRATIONTEST_LeafDeviceSerialPort: "/dev/ttyACM0"
@@ -87,7 +87,7 @@ jobs:
         INTEGRATIONTEST_EnsureHasEventDelayBetweenReadsInSeconds: ${{ env.INTEGRATIONTEST_EnsureHasEventDelayBetweenReadsInSeconds }}
         INTEGRATIONTEST_EnsureHasEventMaximumTries: ${{ env.INTEGRATIONTEST_EnsureHasEventMaximumTries }}
         INTEGRATIONTEST_LeafDeviceSerialPort: ${{ env.INTEGRATIONTEST_LeafDeviceSerialPort }}
-        INTEGRATIONTEST_LeafDeviceGatewayID: ${{ INTEGRATIONTEST_LeafDeviceGatewayID }}
+        INTEGRATIONTEST_LeafDeviceGatewayID: ${{ env.INTEGRATIONTEST_LeafDeviceGatewayID }}
         INTEGRATIONTEST_DevicePrefix: ${{ env.INTEGRATIONTEST_DevicePrefix }}
         INTEGRATIONTEST_FunctionAppCode: ${{ secrets.INTEGRATIONTEST_FunctionAppCode }}
         INTEGRATIONTEST_FunctionAppBaseUrl: ${{ secrets.INTEGRATIONTEST_FunctionAppBaseUrl }}
