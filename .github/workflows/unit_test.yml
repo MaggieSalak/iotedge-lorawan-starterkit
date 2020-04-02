@@ -36,7 +36,7 @@ env:
   networkServerLogLevel: 1
 
   # Azure Function configuration
-  AZURE_FUNCTIONAPP_NAME: lora-function-app
+  AZURE_FUNCTIONAPP_NAME: ms-lora-function-app
   AZURE_FUNCTIONAPP_PACKAGE_PATH: 'LoRaEngine/LoraKeysManagerFacade/'
 
   # IoT Edge Runtime configuration
