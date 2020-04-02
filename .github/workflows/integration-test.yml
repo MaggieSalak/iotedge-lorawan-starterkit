@@ -64,7 +64,7 @@ jobs:
     name: Run tests in dedicated agent
     strategy:
       matrix:
-        testsToRun: [ABPTest, OTAATest, MacTest, SensorDecodingTest, ClassCTest] # OTAAJoinTest]
+        testsToRun: [OTAATest, MacTest, SensorDecodingTest, ClassCTest]
     # needs: 
       # - full_ci_deploy_amd
       # - full_ci_deploy_facade_function
