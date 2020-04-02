@@ -3,7 +3,7 @@ name: $(Build.SourceBranchName)_$(Build.Reason)_$(majorVersion).$(Build.BuildId)
 # Enable CI and PR validation on branches master and dev
 on:
   push:
-    branches: [ master, dev, pipeline-github-actions, pipeline-int-test ]
+    branches: [ master, dev, pipeline-github-actions ]
   pull_request:
     branches: [ master, dev, pipeline-github-actions ]
 
@@ -66,7 +66,7 @@ jobs:
       # - full_ci_deploy_amd
       # - full_ci_deploy_facade_function
     runs-on: [self-hosted, x64]
-    if: $(env).IoTEdgeDeviceAMD != '' # || env.RunTestsOnly == 'true'
+    # if: env.IoTEdgeDeviceAMD != '' || env.RunTestsOnly == 'true'
     timeout-minutes: 60
     env:      
       INTEGRATIONTEST_LeafDeviceSerialPort: "/dev/ttyACM0"
