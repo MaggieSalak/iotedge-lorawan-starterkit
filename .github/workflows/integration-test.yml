@@ -3,7 +3,7 @@ name: $(Build.SourceBranchName)_$(Build.Reason)_$(majorVersion).$(Build.BuildId)
 # Enable CI and PR validation on branches master and dev
 on:
   push:
-    branches: [ master, dev, pipeline-github-actions, pipeline-int-test ]
+    branches: [ master, dev, pipeline-github-actions] #, pipeline-int-test ]
   pull_request:
     branches: [ master, dev, pipeline-github-actions ]
 
@@ -14,7 +14,6 @@ env:
   # Integration test configuration
   AdditionalIntegrationTestArguments: ''
   IntegrationTestsToRun: ''
-  IoTEdgeDeviceAMD: ''
   
   # Major version
   majorVersion: 1.0.0
@@ -64,7 +63,7 @@ jobs:
     name: Run tests in dedicated agent
     strategy:
       matrix:
-        testsToRun: [OTAATest, MacTest, SensorDecodingTest, ClassCTest]
+        testsToRun: [MacTest, ClassCTest]
     # needs: 
       # - full_ci_deploy_amd
       # - full_ci_deploy_facade_function
