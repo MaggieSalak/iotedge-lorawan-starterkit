@@ -13,7 +13,7 @@ env:
   
   # Integration test configuration
   AdditionalIntegrationTestArguments: ''
-  IntegrationTestsToRun: 'LoRaWan.IntegrationTest.MacTest'
+  IntegrationTestsToRun: 'LoRaWan.IntegrationTest.MacTest | LoRaWan.IntegrationTest.SensorDecodingTest'
   
   # Major version
   majorVersion: 1.0.0
