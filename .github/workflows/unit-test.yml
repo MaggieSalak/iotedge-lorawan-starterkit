@@ -95,7 +95,7 @@ jobs:
     - uses: actions/upload-artifact@v1
       with:
         name: unit-test-results
-        path: LoRaEngine/test/TestResults/*
+        path: LoRaEngine/test/TestResults
    
     # Find out if full ci is enabled for Pull Request validation
     - name: Check for CI label build on PR
