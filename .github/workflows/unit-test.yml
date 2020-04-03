@@ -99,7 +99,9 @@ jobs:
    
     # Find out if full ci is enabled for Pull Request validation
     - name: Check for CI label build on PR
+      id: check-label
       run: |
+        echo "::set-output name=label::abcde" 
         echo "Looking for label at https://api.github.com/repos/$BUILD_REPOSITORY_ID/issues/$SYSTEM_PULLREQUEST_PULLREQUESTNUMBER/labels"
         if curl -s "https://api.github.com/repos/$BUILD_REPOSITORY_ID/issues/$SYSTEM_PULLREQUEST_PULLREQUESTNUMBER/labels" | grep '"name": "fullci"'
         then
@@ -107,6 +109,13 @@ jobs:
           echo "fullci label found!"
         fi
       if: github.event_name == 'pull_request'
+   
+    - name: Check label
+      env:
+        label: ${{ steps.check-label.outputs.label }}
+      run: |
+        echo "Label:" 
+        echo ${{ env.label }}
    
   # [Job] Build and deploy Facade Azure Function 
   full_ci_deploy_facade_function:
