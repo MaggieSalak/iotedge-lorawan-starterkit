@@ -63,7 +63,7 @@ jobs:
     name: Run tests in dedicated agent
     strategy:
       matrix:
-        testsToRun: [MacTest, ClassCTest]
+        testsToRun: [MacTest]
     # needs: 
       # - full_ci_deploy_amd
       # - full_ci_deploy_facade_function
@@ -106,9 +106,14 @@ jobs:
       if: (env.AdditionalIntegrationTestArguments == '' && env.IntegrationTestsToRun == '') || contains(env.IntegrationTestsToRun, '${{ matrix.testsToRun }}')
       run: |
         echo ${{ matrix.testsToRun }} 
-        dotnet test --no-build --configuration ${{ env.buildConfiguration }} -p:ParallelizeTestCollections=false --filter LoRaWan.IntegrationTest.${{ matrix.testsToRun }} **/test/LoRaWan.IntegrationTest/LoRaWan.IntegrationTest.csproj
+        dotnet test --no-build --configuration ${{ env.buildConfiguration }} -p:ParallelizeTestCollections=false --filter LoRaWan.IntegrationTest.${{ matrix.testsToRun }} **/test/LoRaWan.IntegrationTest/LoRaWan.IntegrationTest.csproj --logger trx
       
     # Run integration test with filters only, no built-in retries
     - name: Run integration test with additional arguments (no retry)
       if: env.AdditionalIntegrationTestArguments != ''
-      run: dotnet test --configuration ${{ env.buildConfiguration }} -p:ParallelizeTestCollections=false ${{ env.AdditionalIntegrationTestArguments }} **/test/LoRaWan.IntegrationTest/LoRaWan.IntegrationTest.csproj
+      run: dotnet test --configuration ${{ env.buildConfiguration }} -p:ParallelizeTestCollections=false ${{ env.AdditionalIntegrationTestArguments }} **/test/LoRaWan.IntegrationTest/LoRaWan.IntegrationTest.csproj --logger trx
+      
+    - uses: actions/upload-artifact@v1
+      with:
+        name: ${{ matrix.testsToRun }}-results
+        path: LoRaEngine/test/LoRaWan.IntegrationTest/TestResults/*
