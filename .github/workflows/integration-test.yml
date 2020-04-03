@@ -103,7 +103,7 @@ jobs:
     - name: Integration testing #${{ matrix.testsToRun }}
       # if: env.IntegrationTestsToRun == '' || contains(env.IntegrationTestsToRun, '${{ matrix.testsToRun }}')
       run: |
-        dotnet test --no-build --configuration ${{ env.buildConfiguration }} -p:ParallelizeTestCollections=false --filter ${{ env.IntegrationTestsToRun }} **/test/LoRaWan.IntegrationTest/LoRaWan.IntegrationTest.csproj --logger trx
+        dotnet test --no-build --configuration ${{ env.buildConfiguration }} -p:ParallelizeTestCollections=false --filter "${{ env.IntegrationTestsToRun }}" **/test/LoRaWan.IntegrationTest/LoRaWan.IntegrationTest.csproj --logger trx
     
     # Upload test results as artifact
     - uses: actions/upload-artifact@v1
