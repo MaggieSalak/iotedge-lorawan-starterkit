@@ -13,7 +13,7 @@ env:
   
   # Integration test configuration
   AdditionalIntegrationTestArguments: ''
-  IntegrationTestsToRun: 'FullyQualifiedName~LoRaWan.IntegrationTest.MacTest|FullyQualifiedName~LoRaWan.IntegrationTest.SensorDecodingTest'
+  IntegrationTestsToRun: ''
   
   # Major version
   majorVersion: 1.0.0
@@ -61,9 +61,9 @@ jobs:
   # Runs integration tests in dedicated agent, while having modules deployed into PI (arm32v7)
   test_runner_dedicated_agent:
     name: Run tests in dedicated agent
-#     strategy:
-#       matrix:
-#         testsToRun: [MacTest]
+    strategy:
+      matrix:
+        testsToRun: [MacTest]
     # needs: 
       # - full_ci_deploy_amd
       # - full_ci_deploy_facade_function
@@ -100,14 +100,14 @@ jobs:
     - name: Build IntegrationTest
       run: dotnet build --configuration ${{ env.buildConfiguration }} **/test/LoRaWan.IntegrationTest/LoRaWan.IntegrationTest.csproj
 
-    - name: Integration testing #${{ matrix.testsToRun }}
+    - name: Integration testing ${{ matrix.testsToRun }}
       # if: env.IntegrationTestsToRun == '' || contains(env.IntegrationTestsToRun, '${{ matrix.testsToRun }}')
       run: |
-        dotnet test --no-build --configuration ${{ env.buildConfiguration }} -p:ParallelizeTestCollections=false --filter "${{ env.IntegrationTestsToRun }}" **/test/LoRaWan.IntegrationTest/LoRaWan.IntegrationTest.csproj --logger trx
+        echo ${{ matrix.testsToRun }}
+        dotnet test --logger trx --no-build --configuration ${{ env.buildConfiguration }} -p:ParallelizeTestCollections=false --filter "${{ matrix.testsToRun }}" **/test/LoRaWan.IntegrationTest/LoRaWan.IntegrationTest.csproj
     
     # Upload test results as artifact
     - uses: actions/upload-artifact@v1
-      if: env.IntegrationTestsToRun == '' || contains(env.IntegrationTestsToRun, ${{ matrix.testsToRun }})
       with:
         name: ${{ matrix.testsToRun }}-results
         path: LoRaEngine/test/LoRaWan.IntegrationTest/TestResults
