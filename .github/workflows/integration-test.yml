@@ -113,10 +113,8 @@ jobs:
       if: env.AdditionalIntegrationTestArguments != ''
       run: dotnet test --configuration ${{ env.buildConfiguration }} -p:ParallelizeTestCollections=false ${{ env.AdditionalIntegrationTestArguments }} **/test/LoRaWan.IntegrationTest/LoRaWan.IntegrationTest.csproj --logger trx
     
-    - run: mkdir -p LoRaEngine/test/LoRaWan.IntegrationTest/TestResults/${{ matrix.testsToRun }}
-    
     # Upload test results as artifact
     - uses: actions/upload-artifact@v1
       with:
         name: ${{ matrix.testsToRun }}-results
-        path: LoRaEngine/test/LoRaWan.IntegrationTest/TestResults/${{ matrix.testsToRun }}
+        path: LoRaEngine/test/LoRaWan.IntegrationTest/TestResults/*
