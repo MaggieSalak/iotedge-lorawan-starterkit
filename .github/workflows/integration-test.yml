@@ -83,6 +83,7 @@ jobs:
     # - uses: actions/checkout@v2
           
     - name: 'Configure test in **/test/LoRaWan.IntegrationTest/appsettings.json' 
+      if: env.IntegrationTestsToRun == '' || contains(env.IntegrationTestsToRun, ${{ matrix.testsToRun }})
       uses: cschleiden/replace-tokens@v1
       with:
         files: '**/test/LoRaWan.IntegrationTest/appsettings.json'
@@ -100,17 +101,18 @@ jobs:
       
     # Runs Integration tests
     - name: Build IntegrationTest
+      if: env.IntegrationTestsToRun == '' || contains(env.IntegrationTestsToRun, ${{ matrix.testsToRun }})
       run: dotnet build --configuration ${{ env.buildConfiguration }} **/test/LoRaWan.IntegrationTest/LoRaWan.IntegrationTest.csproj
 
     - name: Integration testing ${{ matrix.testsToRun }}
-      if: (env.IntegrationTestsToRun == '') || contains(env.IntegrationTestsToRun, '${{ matrix.testsToRun }}')
+      if: env.IntegrationTestsToRun == '' || contains(env.IntegrationTestsToRun, ${{ matrix.testsToRun }})
       run: |
         echo ${{ matrix.testsToRun }} 
         dotnet test --no-build --configuration ${{ env.buildConfiguration }} -p:ParallelizeTestCollections=false --filter LoRaWan.IntegrationTest.${{ matrix.testsToRun }} **/test/LoRaWan.IntegrationTest/LoRaWan.IntegrationTest.csproj --logger trx
     
     # Upload test results as artifact
     - uses: actions/upload-artifact@v1
-      if: (env.IntegrationTestsToRun == '') || contains(env.IntegrationTestsToRun, '${{ matrix.testsToRun }}')
+      if: env.IntegrationTestsToRun == '' || contains(env.IntegrationTestsToRun, ${{ matrix.testsToRun }})
       with:
         name: ${{ matrix.testsToRun }}-results
         path: LoRaEngine/test/LoRaWan.IntegrationTest/TestResults
