@@ -114,7 +114,7 @@ jobs:
       env:
         label: ${{ steps.check-label.outputs.label }}
       run: |
-        echo "Label:" 
+        echo "Label:  " 
         echo ${{ env.label }}
    
   # [Job] Build and deploy Facade Azure Function 
