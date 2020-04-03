@@ -63,7 +63,7 @@ jobs:
     name: Run tests in dedicated agent
     strategy:
       matrix:
-        testsToRun: [MacTest]
+        testsToRun: [MacTest, SensorDecodingTest]
     # needs: 
       # - full_ci_deploy_amd
       # - full_ci_deploy_facade_function
@@ -98,20 +98,15 @@ jobs:
         INTEGRATIONTEST_FunctionAppCode: ${{ secrets.INTEGRATIONTEST_FunctionAppCode }}
         INTEGRATIONTEST_FunctionAppBaseUrl: ${{ secrets.INTEGRATIONTEST_FunctionAppBaseUrl }}
       
-    # Runs Integration testing only if no additional integration test arguments were passed
+    # Runs Integration tests
     - name: Build IntegrationTest
       run: dotnet build --configuration ${{ env.buildConfiguration }} **/test/LoRaWan.IntegrationTest/LoRaWan.IntegrationTest.csproj
 
     - name: Integration testing ${{ matrix.testsToRun }}
-      if: (env.AdditionalIntegrationTestArguments == '' && env.IntegrationTestsToRun == '') || contains(env.IntegrationTestsToRun, '${{ matrix.testsToRun }}')
+      # if: (env.AdditionalIntegrationTestArguments == '' && env.IntegrationTestsToRun == '') || contains(env.IntegrationTestsToRun, '${{ matrix.testsToRun }}')
       run: |
         echo ${{ matrix.testsToRun }} 
         dotnet test --no-build --configuration ${{ env.buildConfiguration }} -p:ParallelizeTestCollections=false --filter LoRaWan.IntegrationTest.${{ matrix.testsToRun }} **/test/LoRaWan.IntegrationTest/LoRaWan.IntegrationTest.csproj --logger trx
-      
-    # Run integration test with filters only, no built-in retries
-    - name: Run integration test with additional arguments (no retry)
-      if: env.AdditionalIntegrationTestArguments != ''
-      run: dotnet test --configuration ${{ env.buildConfiguration }} -p:ParallelizeTestCollections=false ${{ env.AdditionalIntegrationTestArguments }} **/test/LoRaWan.IntegrationTest/LoRaWan.IntegrationTest.csproj --logger trx
     
     # Upload test results as artifact
     - uses: actions/upload-artifact@v1
