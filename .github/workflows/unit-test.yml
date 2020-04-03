@@ -89,6 +89,12 @@ jobs:
         mkdir $(Build.SourcesDirectory)\results
         dotnet test --logger trx LoRaEngine/test/LoRaWanNetworkServer.Test/*.csproj &&  dotnet test --logger trx LoRaEngine/modules/LoRaWanNetworkSrvModule/LoRaToolsTest/*.csproj && dotnet test --logger trx LoRaEngine/test/LoraKeysManagerFacade.Test/*.csproj
    
+    # Upload test results as artifact
+    - uses: actions/upload-artifact@v1
+      with:
+        name: unit-test-results
+        path: LoRaEngine/test/LoRaWan.IntegrationTest/TestResults/*
+   
     # Find out if full ci is enabled for Pull Request validation
     - name: Check for CI label build on PR
       run: |
